@@ -1,8 +1,9 @@
-package com.eafit.nodo.models;
+package com.eafit.nodo.models.supermercado;
 
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -19,6 +20,8 @@ public class Cliente {
     @Column(nullable = false)
     private String apellido;
 
+    @OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL)
+    private List<Venta> ventas;
 
 
 }

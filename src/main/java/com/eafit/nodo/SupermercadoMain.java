@@ -1,62 +1,78 @@
-import io.github.cdimascio.dotenv.Dotenv;
+package com.eafit.nodo;
+
+import com.eafit.nodo.configs.HibernateSuper;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityManagerFactory;
-import jakarta.persistence.Persistence;
 import com.eafit.nodo.models.supermercado.*;
 import com.eafit.nodo.repositories.supermercado.SupermercadoRepository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
-public class Main {
-
+public class SupermercadoMain {
     public static void main(String[] args) {
-        // Cargar las variables de entorno desde el archivo .env
-        Dotenv dotenv = Dotenv.load();
+        EntityManager em = HibernateSuper.getEntityManager();
 
-        // Crear el EntityManagerFactory usando el archivo persistence.xml
-        EntityManagerFactory emf = Persistence.createEntityManagerFactory("supermercadoPU");
-        EntityManager em = emf.createEntityManager();
-
-        // Crear el repositorio general
-        SupermercadoRepository repo = new SupermercadoRepository();
-        repo.setEntityManager(em);
+        SupermercadoRepository repository = new SupermercadoRepository();
+        repository.setEntityManager(em);
 
         // Iniciar una transacción
         em.getTransaction().begin();
 
-        // Persistir un cliente
-        Cliente cliente = new Cliente();
-        cliente.setNombre("Carlos");
-        cliente.setApellido("Fernandez");
-        repo.saveCliente(cliente);
-
-        // Persistir una marca
+        // Crear y persistir una Marca
         Marca marca = new Marca();
         marca.setNombre("Marca A");
-        repo.saveMarca(marca);
+        repository.saveMarca(marca);
 
-        // Persistir un producto
+        Marca marca2 = new Marca();
+        marca2.setNombre("Marca B");
+        repository.saveMarca(marca2);
+
+        // Crear y persistir un Cliente
+        Cliente cliente = new Cliente();
+        cliente.setNombre("Doralba");
+        cliente.setApellido("Correa");
+        repository.saveCliente(cliente);
+
+        Cliente cliente2 = new Cliente();
+        cliente2.setNombre("Paula");
+        cliente2.setApellido("Montoya");
+        repository.saveCliente(cliente2);
+
+        // Crear y persistir un Producto
         Producto producto = new Producto();
-        producto.setNombre("Producto 1");
-        producto.setMarca(marca);
-        repo.saveProducto(producto);
+        producto.setNombre("Producto A");
+        producto.setPrecio(10.99);
+        producto.setMarca(marca); // Asignar la marca al producto
+        repository.saveProducto(producto);
 
-        // Persistir una venta
+        Producto producto2 = new Producto();
+        producto2.setNombre("Producto B");
+        producto2.setPrecio(15.49);
+        producto2.setMarca(marca2); // Asignar la otra marca al producto
+        repository.saveProducto(producto2);
+
+        // Crear y persistir una Venta
         Venta venta = new Venta();
-        venta.setCliente(cliente);
-        venta.addProducto(producto);
-        repo.saveVenta(venta);
+        venta.setFecha(LocalDateTime.now());
+        venta.setCliente(cliente); // Asignar el cliente a la venta
+        venta.addProducto(producto, 2); // Agregar el producto a la venta
+        repository.saveVenta(venta);
 
-        // Hacer commit de la transacción
+        // Confirmar la transacción
         em.getTransaction().commit();
 
-        // Consultar y mostrar todos los clientes
-        List<Cliente> clientes = repo.findAllClientes();
-        System.out.println("Clientes en la base de datos:");
+
+        // Consultar y mostrar todos los Clientes
+        List<Cliente> clientes = repository.findAllClientes();
+        System.out.println("Clientes:");
         clientes.forEach(c -> System.out.println(c.getNombre() + " " + c.getApellido()));
 
-        // Cerrar EntityManager
+        // Consultar y mostrar todos los Productos
+        List<Producto> productos = repository.findAllProductos();
+        System.out.println("\nProductos:");
+        productos.forEach(p -> System.out.println(p.getNombre() + " - Precio: " + p.getPrecio()));
+
         em.close();
-        emf.close();
+        HibernateSuper.shutdown();
     }
 }

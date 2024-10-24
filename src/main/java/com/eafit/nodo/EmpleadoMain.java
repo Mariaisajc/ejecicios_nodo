@@ -1,4 +1,4 @@
-
+package com.eafit.nodo;
 
 import com.eafit.nodo.configs.HibernateUtil;
 import com.eafit.nodo.models.empleado.*;
@@ -8,7 +8,7 @@ import jakarta.persistence.EntityManager;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Main {
+public class EmpleadoMain {
     public static void main(String[] args) {
         EntityManager em = HibernateUtil.getEntityManager();
         var departamentoRepository = new DepartamentoRepository(em);
